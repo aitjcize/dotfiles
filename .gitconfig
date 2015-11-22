@@ -1,0 +1,15 @@
+[user]
+    name = AZ Huang
+    email = aitjcize@gmail.com
+[alias]
+    lg = log --graph --pretty=format:'%C(cyan bold)%h%Creset -%C(yellow bold)%d%Creset %s %C(magenta bold)(%cr)%Creset' --abbrev-commit --date=relative
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+[core]
+    editor = vim
+    pager = less
+    deltaBaseCacheLimit = 1G
+[push]
+    default = simple
