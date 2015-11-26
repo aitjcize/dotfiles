@@ -3,30 +3,31 @@ set nocompatible
 
 " Vundle
 filetype off
-set runtimepath+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 " let Vundle manage Vundle
-" required!
-Bundle 'gmarik/vundle'
+Plugin 'VundleVim/Vundle.vim'
 
-" My Bundles here:
 " original repos on github
-Bundle 'aitjcize/vim-tomorrow-theme'
-Bundle 'kien/ctrlp.vim'
-Bundle 'msanders/snipmate.vim'
-Bundle 'taxilian/a.vim'
-Bundle 'tpope/vim-rails.git'
-Bundle 'benmills/vimux'
-Bundle 'mxw/vim-jsx'
+Plugin 'aitjcize/vim-tomorrow-theme'
+Plugin 'benmills/vimux'
+Plugin 'davidhalter/jedi-vim'
+Plugin 'kien/ctrlp.vim'
+Plugin 'msanders/snipmate.vim'
+Plugin 'mxw/vim-jsx'
+Plugin 'taxilian/a.vim'
+Plugin 'tpope/vim-rails.git'
 
 " vim-scripts repos
-Bundle 'local_vimrc.vim'
-Bundle 'gtk-vim-syntax'
-Bundle 'matchit.zip'
+Plugin 'gtk-vim-syntax'
+Plugin 'local_vimrc.vim'
+Plugin 'matchit.zip'
 
 " non github repos
-" Bundle 'git://git.wincent.com/command-t.git'
+" Plugin 'git://git.wincent.com/command-t.git'
+
+call vundle#end()
 
 " Basic Settings
 set background=dark
