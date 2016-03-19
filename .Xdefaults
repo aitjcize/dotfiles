@@ -10,7 +10,7 @@ Xcursor.theme: Vanilla-DMZ-AA
 ! Xterm Config
 !! look and feel
 xterm*termName: xterm-256color
-xterm*geometry: 80x24
+xterm*VT100.geometry: 80x24
 xterm*scrollBar: false
 xterm*background: black
 xterm*foreground: white
@@ -25,12 +25,18 @@ xterm*renderFont: true
 xterm*locale: true
 xterm*xftAntialias: true
 xterm*preeditType: Root
-xterm*faceName: DejaVu Sans Mono:pixelsize=14
-xterm*faceNameDoublesize: WenQuanYi Micro Hei Mono Light:pixelsize=14
+xterm*faceName: DejaVu Sans Mono:size=11
+xterm*faceNameDoublesize: WenQuanYi Micro Hei Mono Light:size=11
+
+xterm*VT100*font1: 5x8
+xterm*VT100*font2: 6x10
 
 !! fix alt-key inputting
 xterm*eightBitInput: false
 xterm*altSendsEscape: true
+
+!! Backspace
+xterm*backarrowKey: false
 
 !! allow selecting email/url by double-click
 xterm*charClass: 33:48,37-38:48,45-47:48,64:48,58:48,126:48,61:48,63:48,43:48,35:48
