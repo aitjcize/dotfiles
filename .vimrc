@@ -18,6 +18,7 @@ Plugin 'msanders/snipmate.vim'
 Plugin 'mxw/vim-jsx'
 Plugin 'taxilian/a.vim'
 Plugin 'tpope/vim-rails.git'
+Plugin 'plasticboy/vim-markdown'
 
 " vim-scripts repos
 Plugin 'gtk-vim-syntax'
