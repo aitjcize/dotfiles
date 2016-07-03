@@ -77,13 +77,13 @@ autocmd BufWinEnter * match ExtraWhitespace /\s\+$\| \+\ze\t/
 let $PAGER=''
 
 " For c, cpp, sh
-autocmd Filetype vim,c,cpp,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex,ruby,xml,opencl set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
+autocmd Filetype vim,c,cpp,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
 
 " GLSL
 autocmd BufNewFile,BufRead *.vp,*.fp,*.vert,*.frag,*.shd,*.gls set filetype=gls cindent comments=sr:/*,mbl:*,ex:*/,:// cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
 
 " For python, matlab
-autocmd Filetype python,matlab,css,java,qml set cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
+autocmd Filetype python,matlab,css,java,qml set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
 
 " For Go
 autocmd Filetype go set shiftwidth=2 tabstop=2 textwidth=80 noexpandtab
