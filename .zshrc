@@ -27,6 +27,7 @@ setopt notify
 setopt nohup
 
 # Auto-complete settings
+zstyle ':completion:*' menu select
 zstyle ':completion:*' completer _complete _correct _complete:foo
 zstyle ':completion:*:complete:*' matcher-list \
     '' 'm:{a-zA-Z}={A-Za-z}'
@@ -155,7 +156,8 @@ export DTMP=/media/AZsData/Temp
 alias gg='git grep'
 alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/daes/background.jpg'
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
-
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /usr/share/autojump/autojump.zsh
+# Utils
+source $HOME/bin/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
+source $HOME/bin/autojump.git/bin/autojump.zsh
+eval "$(fasd --init auto)"
+alias v='f -e vim' # quick opening files with vim
