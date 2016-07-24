@@ -76,6 +76,8 @@ autocmd BufWinEnter * match ExtraWhitespace /\s\+$\| \+\ze\t/
 " Man Page
 let $PAGER=''
 
+autocmd BufRead,BufNewFile *bot set filetype=json
+
 " For c, cpp, sh
 autocmd Filetype vim,c,cpp,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
 

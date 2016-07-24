@@ -152,16 +152,10 @@ export MYINC=$HOME/Work/include
 export DTMP=/media/AZsData/Temp
 
 # Misc alias
+alias gg='git grep'
 alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/daes/background.jpg'
-
-alias shutdown='sudo shutdown -h now'
-alias nvoff="sudo sh -c 'echo OFF > /proc/acpi/bbswitch; cat /proc/acpi/bbswitch'"
-alias mpo="sudo sh -c 'echo on > /sys/bus/usb/devices/3-1/power/control'"
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
 
-export CROS_HOME=$HOME/chromiumos/chroot/home/aitjcize
-
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-alias fuck='$(thefuck $(fc -ln -1))'
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/autojump/autojump.zsh
