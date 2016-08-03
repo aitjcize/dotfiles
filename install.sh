@@ -9,9 +9,6 @@ for config in .vimrc .zshrc .tmux.conf .gitconfig .bashrc; do
   ln -sf $SRC/$config .
 done
 
-# vim
-#vim +BundleInstall
-
 # Bin utils
 mkdir -p $HOME/bin
 cd $HOME/bin
@@ -26,3 +23,8 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git zsh-syntax-hi
 # fasd
 git clone https://github.com/clvv/fasd.git fasd.git
 ln -s fasd.git/fasd .
+
+# vim
+mkdir -p ~/.vim/bundle
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+vim +BundleInstall
