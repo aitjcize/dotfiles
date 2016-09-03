@@ -148,9 +148,8 @@ en_locale
 export EDITOR=vim
 export BROWSER=google-chrome-beta
 
-export MYLIB=$HOME/Work/lib
-export MYINC=$HOME/Work/include
-export DTMP=/media/AZsData/Temp
+# SSH agent
+export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
 
 # Misc alias
 alias gg='git grep'
@@ -159,7 +158,7 @@ alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/da
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
 source $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
-source $ZSH_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
