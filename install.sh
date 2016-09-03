@@ -17,8 +17,11 @@ cd $HOME/bin
 git clone https://github.com/wting/autojump.git autojump.git
 ln -s autojump.git/bin/autojump
 
-# zsh-syntax highlighting
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git zsh-syntax-highlighting.git
+# Zsh plugins
+ZSH_DIR=$HOME/bin/zsh
+mkdir -p $ZSH_DIR
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_DIR/zsh-syntax-highlighting.git
+git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_DIR/zsh-autosuggestions
 
 # fasd
 git clone https://github.com/clvv/fasd.git fasd.git

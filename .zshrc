@@ -156,8 +156,10 @@ export DTMP=/media/AZsData/Temp
 alias gg='git grep'
 alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/daes/background.jpg'
 
-# Utils
-source $HOME/bin/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
+# Zsh plugins
+ZSH_DIR=$HOME/bin/zsh
+source $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
+source $ZSH_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
-eval "$(fasd --init auto)"
-alias v='f -e vim' # quick opening files with vim
