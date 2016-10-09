@@ -149,7 +149,12 @@ export EDITOR=vim
 export BROWSER=google-chrome-beta
 
 # SSH agent
+if [ ! -S $HOME/.ssh/ssh_auth_sock ]; then
+    eval `ssh-agent`
+      ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+    fi
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
+ssh-add -l | grep "Please add identity to ssh-agent." && ssh-add
 
 # Misc alias
 alias gg='git grep'
