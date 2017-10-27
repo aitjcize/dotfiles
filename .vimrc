@@ -90,6 +90,8 @@ autocmd Filetype python,matlab,css,java,qml set cindent softtabstop=4 shiftwidth
 " For Go
 autocmd Filetype go set shiftwidth=2 tabstop=2 textwidth=80 noexpandtab
 
+let g:go_fmt_command = "goimports"
+
 " For QML
 autocmd BufNewFile,BufRead *.qml set ft=qml softtabstop=4 shiftwidth=4 tabstop=2 expandtab
 

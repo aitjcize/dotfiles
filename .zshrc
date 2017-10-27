@@ -117,7 +117,7 @@ alias npm-exec='PATH=$(npm bin):$PATH'
 export NPM_PACKAGES="$HOME/.npm-packages"
 
 # Go
-export GOPATH=$HOME/.local/lib/go/site
+export GOPATH=$HOME/go
 
 # PATH
 export PATH=$HOME/chromiumos/chromite/bin:$HOME/bin:$HOME/bin/depot_tools:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/bin/matlab.d:$HOME/.rvm/bin:$NPM_PACKAGES/bin:$GOPATH/bin:$PATH
