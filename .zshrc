@@ -164,6 +164,7 @@ alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/da
 ZSH_DIR=$HOME/bin/zsh
 source $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
 source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
+source $ZSH_DIR/kubectl.plugin.zsh
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh

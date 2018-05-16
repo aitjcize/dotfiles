@@ -10,6 +10,7 @@ for config in .vimrc .zshrc .tmux.conf .gitconfig .bashrc; do
 done
 
 # Bin utils
+mkdir $HOME/bin
 cp -r $SRC/bin $HOME/bin
 cd $HOME/bin
 

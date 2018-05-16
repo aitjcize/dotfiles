@@ -12,13 +12,20 @@ Plugin 'VundleVim/Vundle.vim'
 " original repos on github
 Plugin 'aitjcize/vim-tomorrow-theme'
 Plugin 'benmills/vimux'
-Plugin 'davidhalter/jedi-vim'
+"Plugin 'davidhalter/jedi-vim'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'mxw/vim-jsx'
 Plugin 'taxilian/a.vim'
 Plugin 'tpope/vim-rails.git'
+Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
+Plugin 'mzlogin/vim-markdown-toc'
+Plugin 'fatih/vim-go'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'tpope/vim-fugitive'
+Plugin 'martinda/Jenkinsfile-vim-syntax'
+Plugin 'SirVer/ultisnips'
 
 " vim-scripts repos
 Plugin 'gtk-vim-syntax'
@@ -250,3 +257,14 @@ let calendar_diary = '~/Documents/Calendar'
 noremap <F7> <ESC>:VimuxCloseRunner<CR>
 noremap <F8> <ESC>:VimuxPromptCommand<CR>
 noremap <F9> <ESC>:VimuxRunLastCommand<CR>
+
+" vim-go
+let g:go_fmt_command = "goimports"
+
+" UltiSnips
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" YouCompleteMe
+let g:ycm_key_list_select_completion = ['<Down>']
+let g:ycm_key_list_previous_completion = ['<Up>']
