@@ -10,22 +10,23 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 " original repos on github
+"Plugin 'davidhalter/jedi-vim'
+Plugin 'SirVer/ultisnips'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'aitjcize/vim-tomorrow-theme'
 Plugin 'benmills/vimux'
-"Plugin 'davidhalter/jedi-vim'
+Plugin 'fatih/vim-go'
+Plugin 'godlygeek/tabular'
 Plugin 'kien/ctrlp.vim'
+Plugin 'martinda/Jenkinsfile-vim-syntax'
 Plugin 'msanders/snipmate.vim'
 Plugin 'mxw/vim-jsx'
-Plugin 'taxilian/a.vim'
-Plugin 'tpope/vim-rails.git'
-Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
 Plugin 'mzlogin/vim-markdown-toc'
-Plugin 'fatih/vim-go'
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'plasticboy/vim-markdown'
+Plugin 'taxilian/a.vim'
+Plugin 'tomlion/vim-solidity'
 Plugin 'tpope/vim-fugitive'
-Plugin 'martinda/Jenkinsfile-vim-syntax'
-Plugin 'SirVer/ultisnips'
+Plugin 'tpope/vim-rails.git'
 
 " vim-scripts repos
 Plugin 'gtk-vim-syntax'
@@ -92,7 +93,7 @@ autocmd Filetype vim,c,cpp,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex
 autocmd BufNewFile,BufRead *.vp,*.fp,*.vert,*.frag,*.shd,*.gls set filetype=gls cindent comments=sr:/*,mbl:*,ex:*/,:// cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
 
 " For python, matlab
-autocmd Filetype python,matlab,css,java,qml set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
+autocmd Filetype python,matlab,css,java,solidity set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
 
 " For Go
 autocmd Filetype go set shiftwidth=2 tabstop=2 textwidth=80 noexpandtab
@@ -182,7 +183,7 @@ command LoadCscope :call s:load_cscope()
 
 
 " For CtrlP
-set wildignore+=*.o
+set wildignore+=*/tmp/*,*/vendor/*,*/.env/*,*.so,*.swp,*.zip,*.o,*.pyc
 let g:ctrlp_max_files = 0
 
 " Tabpage
@@ -262,8 +263,8 @@ noremap <F9> <ESC>:VimuxRunLastCommand<CR>
 let g:go_fmt_command = "goimports"
 
 " UltiSnips
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsJumpForwardTrigger="<c-l>"
+let g:UltiSnipsJumpBackwardTrigger="<c-h>"
 
 " YouCompleteMe
 let g:ycm_key_list_select_completion = ['<Down>']
