@@ -27,6 +27,8 @@ Plugin 'taxilian/a.vim'
 Plugin 'tomlion/vim-solidity'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-rails.git'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'peitalin/vim-jsx-typescript'
 
 " vim-scripts repos
 Plugin 'gtk-vim-syntax'
@@ -60,6 +62,10 @@ syntax on
 filetype plugin indent on
 colorscheme Tomorrow-Night-Bright
 
+" Cursor line
+set cursorline
+hi CursorLine cterm=underline ctermbg=NONE ctermfg=NONE
+
 " Set color scheme for GUI
 if has("gui_running")
 	color slate
@@ -87,7 +93,7 @@ let $PAGER=''
 autocmd BufRead,BufNewFile *bot set filetype=json
 
 " For c, cpp, sh
-autocmd Filetype vim,c,cpp,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
+autocmd Filetype vim,c,cpp,proto,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
 
 " GLSL
 autocmd BufNewFile,BufRead *.vp,*.fp,*.vert,*.frag,*.shd,*.gls set filetype=gls cindent comments=sr:/*,mbl:*,ex:*/,:// cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
@@ -261,11 +267,12 @@ noremap <F9> <ESC>:VimuxRunLastCommand<CR>
 
 " vim-go
 let g:go_fmt_command = "goimports"
+autocmd QuickFixCmdPost *grep* cwindow
 
 " UltiSnips
 let g:UltiSnipsJumpForwardTrigger="<c-l>"
 let g:UltiSnipsJumpBackwardTrigger="<c-h>"
 
 " YouCompleteMe
-let g:ycm_key_list_select_completion = ['<Down>']
-let g:ycm_key_list_previous_completion = ['<Up>']
+"let g:ycm_key_list_select_completion = ['<Down>']
+"let g:ycm_key_list_previous_completion = ['<Up>']

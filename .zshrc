@@ -112,15 +112,13 @@ if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-# NodeJS
-alias npm-exec='PATH=$(npm bin):$PATH'
 export NPM_PACKAGES="$HOME/.npm-packages"
 
 # Go
 export GOPATH=$HOME/go
 
 # PATH
-export PATH=$HOME/chromiumos/chromite/bin:$HOME/bin:$HOME/bin/depot_tools:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/bin/matlab.d:$HOME/.rvm/bin:$NPM_PACKAGES/bin:$GOPATH/bin:$PATH
+export PATH=$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/.rvm/bin:$NPM_PACKAGES/bin:$GOPATH/bin:$PATH
 
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     vim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
