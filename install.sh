@@ -9,10 +9,13 @@ for config in .vimrc .zshrc .tmux.conf .gitconfig .bashrc; do
   ln -sf $SRC/$config .
 done
 
-# Bin utils
-mkdir $HOME/bin
-cp -r $SRC/bin $HOME/bin
+# Bin
+mkdir -p $HOME/bin
 cd $HOME/bin
+
+# Kitty
+mkdir -p $HOME/.config/kitty
+ln -sf $SRC/kitty.conf $HOME/.config/kitty
 
 # autojump
 git clone https://github.com/wting/autojump.git $HOME/bin/autojump.git

@@ -120,6 +120,9 @@ export GOPATH=$HOME/go
 # PATH
 export PATH=$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/.rvm/bin:$NPM_PACKAGES/bin:$GOPATH/bin:$PATH
 
+# Homebrew
+export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     vim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
     -c 'map <SPACE> <C-D>' -c 'map b <C-U>' \
@@ -148,9 +151,10 @@ export BROWSER=google-chrome-beta
 
 # SSH agent
 if [ ! -S $HOME/.ssh/ssh_auth_sock ]; then
-    eval `ssh-agent`
-      ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
-    fi
+    eval $(ssh-agent)
+    ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+fi
+
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
 ssh-add -l | grep "Please add identity to ssh-agent." && ssh-add
 
@@ -162,7 +166,7 @@ alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/da
 ZSH_DIR=$HOME/bin/zsh
 source $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
 source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
-source $ZSH_DIR/kubectl.plugin.zsh
+#source $ZSH_DIR/kubectl.plugin.zsh
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
