@@ -29,6 +29,12 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-rails.git'
 Plugin 'leafgarland/typescript-vim'
 Plugin 'peitalin/vim-jsx-typescript'
+Plugin 'airblade/vim-gitgutter'
+
+" Nerd Tree
+Plugin 'scrooloose/nerdtree'
+Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
 
 " vim-scripts repos
 Plugin 'gtk-vim-syntax'
@@ -276,3 +282,15 @@ let g:UltiSnipsJumpBackwardTrigger="<c-h>"
 " YouCompleteMe
 "let g:ycm_key_list_select_completion = ['<Down>']
 "let g:ycm_key_list_previous_completion = ['<Up>']
+
+" NERDTree
+command! NT NERDTreeToggle
+
+" Vim Gutter
+set updatetime=100
+
+set signcolumn=yes
+let g:gitgutter_override_sign_column_highlight = 0
+highlight GitGutterAdd    ctermfg=10
+highlight GitGutterChange ctermfg=14
+highlight GitGutterDelete ctermfg=9
