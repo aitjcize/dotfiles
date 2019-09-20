@@ -134,3 +134,5 @@ pre_prompt() {
 
 export PS1_ORIG=$PS1
 export PROMPT_COMMAND=pre_prompt
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

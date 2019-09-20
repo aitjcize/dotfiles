@@ -10,6 +10,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 " original repos on github
+Plugin 'junegunn/fzf.vim'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 " Plugin 'ycm-core/YouCompleteMe'
@@ -30,7 +31,6 @@ Plugin 'airblade/vim-gitgutter'
 Plugin 'dart-lang/dart-vim-plugin'
 Plugin 'isruslan/vim-es6'
 Plugin 'Quramy/tsuquyomi'
-Plugin 'junegunn/fzf.vim'
 
 " Nerd Tree
 Plugin 'scrooloose/nerdtree'
@@ -257,10 +257,6 @@ let g:local_vimrc='.vimrc.local'
 " SnipMate
 let g:snips_author = 'Wei-Ning Huang (AZ)'
 
-" ctrlp
-let g:ctrlp_open_new_file = 't'
-let g:ctrlp_open_multiple_files = 't'
-
 " Python complete-dict
 let g:pydiction_location = '~/.vim/bundle/Pydiction/complete-dict'
 
@@ -303,3 +299,7 @@ highlight GitGutterDelete ctermfg=9 ctermbg=235
 let g:UltiSnipsExpandTrigger="<c-o>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" Fzf
+set rtp+=/usr/local/opt/fzf
+nnoremap <c-p> :FZF<cr>

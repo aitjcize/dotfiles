@@ -153,15 +153,12 @@ fi
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
 ssh-add -l | grep "Please add identity to ssh-agent." && ssh-add
 
-# Misc alias
-alias gg='git grep'
-alias rdwp='pkill -9 -f conky && conky -d && awsetbg ~/.config/awesome/themes/daes/background.jpg'
-
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
-source $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
-source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
-#source $ZSH_DIR/kubectl.plugin.zsh
+[ -f $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh ] && $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
+[ -f $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh ] && source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
+[ -f $ZSH_DIR/kubectl.plugin.zsh ] && source $ZSH_DIR/kubectl.plugin.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
@@ -170,11 +167,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
 
-
+# Flutter
 export PATH=$HOME/Work/flutter/bin:$PATH
 
-alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
-
+# ESP-IDF
 export IDF_PATH=$HOME/Work/esp-idf
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Misc alias
+alias gg='git grep'
+alias myip='dig +short myip.opendns.com @resolver1.opendns.com'

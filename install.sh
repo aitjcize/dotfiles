@@ -21,6 +21,10 @@ ln -sf $SRC/kitty.conf $HOME/.config/kitty
 git clone https://github.com/wting/autojump.git $HOME/bin/autojump.git
 ln -s autojump.git/bin/autojump .
 
+# Fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
 mkdir -p $ZSH_DIR
