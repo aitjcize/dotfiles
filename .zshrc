@@ -112,16 +112,11 @@ if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-export NPM_PACKAGES="$HOME/.npm-packages"
-
 # Go
 export GOPATH=$HOME/go
 
 # PATH
-export PATH=$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/.rvm/bin:$NPM_PACKAGES/bin:$GOPATH/bin:$PATH
-
-# Homebrew
-export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
+export PATH=/usr/local/opt/coreutils/libexec/gnubin:$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/.rvm/bin:$GOPATH/bin:$PATH
 
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     vim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
@@ -170,3 +165,16 @@ source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
+
+
+export PATH=$HOME/Work/flutter/bin:$PATH
+
+alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
+
+export IDF_PATH=$HOME/Work/esp-idf
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

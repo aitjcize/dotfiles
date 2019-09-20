@@ -10,26 +10,27 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 " original repos on github
-"Plugin 'davidhalter/jedi-vim'
 Plugin 'SirVer/ultisnips'
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'honza/vim-snippets'
+" Plugin 'ycm-core/YouCompleteMe'
 Plugin 'aitjcize/vim-tomorrow-theme'
 Plugin 'benmills/vimux'
 Plugin 'fatih/vim-go'
 Plugin 'godlygeek/tabular'
-Plugin 'kien/ctrlp.vim'
 Plugin 'martinda/Jenkinsfile-vim-syntax'
-Plugin 'msanders/snipmate.vim'
 Plugin 'mxw/vim-jsx'
 Plugin 'mzlogin/vim-markdown-toc'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'taxilian/a.vim'
 Plugin 'tomlion/vim-solidity'
 Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-rails.git'
-Plugin 'leafgarland/typescript-vim'
+Plugin 'HerringtonDarkholme/yats.vim'
 Plugin 'peitalin/vim-jsx-typescript'
 Plugin 'airblade/vim-gitgutter'
+Plugin 'dart-lang/dart-vim-plugin'
+Plugin 'isruslan/vim-es6'
+Plugin 'Quramy/tsuquyomi'
+Plugin 'junegunn/fzf.vim'
 
 " Nerd Tree
 Plugin 'scrooloose/nerdtree'
@@ -105,7 +106,11 @@ autocmd Filetype vim,c,cpp,proto,cuda,sh,html,eruby,htmldjango,javascript,sql,sc
 autocmd BufNewFile,BufRead *.vp,*.fp,*.vert,*.frag,*.shd,*.gls set filetype=gls cindent comments=sr:/*,mbl:*,ex:*/,:// cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
 
 " For python, matlab
-autocmd Filetype python,matlab,css,java,solidity set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
+autocmd Filetype python,matlab,css,java set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
+
+" For solidity.
+autocmd Filetype python,matlab,css,java,solidity set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=99 colorcolumn=101
+
 
 " For Go
 autocmd Filetype go set shiftwidth=2 tabstop=2 textwidth=80 noexpandtab
@@ -193,10 +198,6 @@ function s:load_cscope()
 endfunction
 command LoadCscope :call s:load_cscope()
 
-
-" For CtrlP
-set wildignore+=*/tmp/*,*/vendor/*,*/.env/*,*.so,*.swp,*.zip,*.o,*.pyc
-let g:ctrlp_max_files = 0
 
 " Tabpage
 "" Open new tab
@@ -291,6 +292,14 @@ set updatetime=100
 
 set signcolumn=yes
 let g:gitgutter_override_sign_column_highlight = 0
-highlight GitGutterAdd    ctermfg=10
-highlight GitGutterChange ctermfg=14
-highlight GitGutterDelete ctermfg=9
+
+highlight SignColumn ctermbg=235
+highlight GitGutterAdd    ctermfg=10 ctermbg=235
+highlight GitGutterChange ctermfg=14 ctermbg=235
+highlight GitGutterDelete ctermfg=9 ctermbg=235
+
+" UltiSnips
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<c-o>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
