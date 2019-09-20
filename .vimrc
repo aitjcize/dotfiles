@@ -301,5 +301,5 @@ let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 " Fzf
-set rtp+=/usr/local/opt/fzf
+set rtp+=~/.fzf
 nnoremap <c-p> :FZF<cr>
