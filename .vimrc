@@ -302,4 +302,4 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 " Fzf
 set rtp+=~/.fzf
-nnoremap <c-p> :FZF<cr>
+nnoremap <c-p> :Files<cr>

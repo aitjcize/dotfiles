@@ -155,10 +155,13 @@ ssh-add -l | grep "Please add identity to ssh-agent." && ssh-add
 
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
-[ -f $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh ] && $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
+[ -f $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh ] && source $ZSH_DIR/zsh-syntax-highlighting.git/zsh-syntax-highlighting.zsh
 [ -f $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh ] && source $ZSH_DIR/zsh-autosuggestions.git/zsh-autosuggestions.zsh
 [ -f $ZSH_DIR/kubectl.plugin.zsh ] && source $ZSH_DIR/kubectl.plugin.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export FZF_DEFAULT_COMMAND='fd --type f'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
