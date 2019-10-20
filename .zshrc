@@ -125,18 +125,18 @@ export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
 
 # Locale switching
 alias zh_locale='
-LC_ALL=zh_TW.UTF-8
-LANG=zh_TW.UTF-8
-LANGUAGE=zh_TW.UTF-8
-LC_MESSAGE=zh_TW.UTF-8
-LC_TIME=zh_TW.UTF-8'
+export LC_ALL=zh_TW.UTF-8
+export LANG=zh_TW.UTF-8
+export LANGUAGE=zh_TW.UTF-8
+export LC_MESSAGE=zh_TW.UTF-8
+export LC_TIME=zh_TW.UTF-8'
 
 alias en_locale='
-LC_ALL=en_US.UTF-8
-LANG=en_US.UTF-8
-LANGUAGE=en_US.UTF-8
-LC_MESSAGE=en_US.UTF-8
-LC_TIME=en_US.UTF-8'
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export LC_MESSAGE=en_US.UTF-8
+export LC_TIME=en_US.UTF-8'
 
 en_locale
 

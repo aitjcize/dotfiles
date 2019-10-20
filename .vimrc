@@ -13,7 +13,7 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'junegunn/fzf.vim'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
-" Plugin 'ycm-core/YouCompleteMe'
+Plugin 'ycm-core/YouCompleteMe'
 Plugin 'aitjcize/vim-tomorrow-theme'
 Plugin 'benmills/vimux'
 Plugin 'fatih/vim-go'
@@ -31,6 +31,8 @@ Plugin 'airblade/vim-gitgutter'
 Plugin 'dart-lang/dart-vim-plugin'
 Plugin 'isruslan/vim-es6'
 Plugin 'Quramy/tsuquyomi'
+Plugin 'prettier/vim-prettier'
+Plugin 'rust-lang/rust.vim'
 
 " Nerd Tree
 Plugin 'scrooloose/nerdtree'
@@ -100,7 +102,7 @@ let $PAGER=''
 autocmd BufRead,BufNewFile *bot set filetype=json
 
 " For c, cpp, sh
-autocmd Filetype vim,c,cpp,proto,cuda,sh,html,eruby,htmldjango,javascript,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
+autocmd Filetype vim,c,cpp,proto,cuda,sh,html,eruby,htmldjango,javascript,typescript,typescript.tsx,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
 
 " GLSL
 autocmd BufNewFile,BufRead *.vp,*.fp,*.vert,*.frag,*.shd,*.gls set filetype=gls cindent comments=sr:/*,mbl:*,ex:*/,:// cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
@@ -302,4 +304,8 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 " Fzf
 set rtp+=~/.fzf
-nnoremap <c-p> :Files<cr>
+nnoremap <c-p> :GFiles<cr>
+
+" Prettier
+let g:prettier#autoformat = 0
+autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
