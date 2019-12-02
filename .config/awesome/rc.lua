@@ -102,16 +102,13 @@ myawesomemenu = {
    { "Quit", awesome.quit },
 }
 internetmenu = {
-   { "Chrome", "google-chrome-beta" },
-   { "PCManX", "pcmanx" },
+   { "Chrome", "google-chrome" },
    { "Pidgin", "pidgin" },
    { "Wireshark", "wireshark" },
 }
 mediamenu = {
-   { "Banshee", "banshee" },
    { "Brasero", "brasero" },
    { "SMPlayer", "smplayer" },
-   { "Totem", "totem" },
 }
 officemenu = {
    { "Gummi","gummi" },
@@ -165,9 +162,8 @@ vicious.register(datewidget, vicious.widgets.date, '<span color="#a86500">[</spa
 volwidget = wibox.widget.textbox()
 vicious.register(volwidget, vicious.widgets.volume, '<span color="#a2a2a2">$1%</span>', 1, "-D pulse Master")
 
--- Vol icon
 volicon = wibox.widget.imagebox()
-volicon:set_image("/home/aitjcize/.config/awesome/themes/daes/icons/vol.png")
+volicon:set_image(home .. "/.config/awesome/themes/daes/icons/vol.png")
 
 volicon:buttons(awful.util.table.join(
   awful.button({ }, 2, function () awful.util.spawn("amixer -D pulse sset Master toggle")   end),
@@ -177,19 +173,19 @@ volicon:buttons(awful.util.table.join(
 
 -- CPU widget
 cpuwidget = wibox.widget.textbox()
-vicious.register(cpuwidget, vicious.widgets.cpu, 'Cpu: <span color="#a2a2a2">$1%</span>')
+vicious.register(cpuwidget, vicious.widgets.cpu, 'CPU: <span color="#a2a2a2">$1%</span>')
 
 -- Cpu icon
 cpuicon = wibox.widget.imagebox()
-cpuicon:set_image("/home/aitjcize/.config/awesome/themes/daes/icons/cpu.png")
+cpuicon:set_image(home .. "/.config/awesome/themes/daes/icons/cpu.png")
 
 -- Memory usage
 memwidget = wibox.widget.textbox()
-vicious.register(memwidget, vicious.widgets.mem, 'Ram: <span color="#a2a2a2">$1%</span>', 13)
+vicious.register(memwidget, vicious.widgets.mem, 'RAM: <span color="#a2a2a2">$1%</span>', 13)
 
 -- Mem icon
 memicon = wibox.widget.imagebox()
-memicon:set_image("/home/aitjcize/.config/awesome/themes/daes/icons/mem.png")
+memicon:set_image(home .. "/.config/awesome/themes/daes/icons/mem.png")
 
 -- Battery icon
 -- batwidget = delightful.widgets.battery()
@@ -438,23 +434,14 @@ globalkeys = awful.util.table.join(
     --          {description = "show the menubar", group = "launcher"}),
 
     -- Internet keys
-    awful.key({ modkey,           }, "b",     function () awful.util.spawn("google-chrome-beta" )   end),
-    awful.key({ modkey,           }, "p",     function () awful.util.spawn("pcmanx" )   end),
-    awful.key({ modkey,           }, "]",     function () awful.util.spawn("evince /home/aitjcize/Books/active.pdf" )   end),
+    awful.key({ modkey,           }, "b",     function () awful.util.spawn("google-chrome" )   end),
 
     -- Multimedia keys
     awful.key({ modkey,           }, ".",     function () awful.util.spawn("amixer -D pulse sset Master 5%+" )   end),
     awful.key({ modkey,           }, ",",     function () awful.util.spawn("amixer -D pulse sset Master 5%-" )   end),
-    awful.key({ modkey,           }, "F2",    function () awful.util.spawn("banshee --next" )   end),
-
-    -- TouchPad
-    awful.key({ modkey,           }, "F4",     function () awful.util.spawn("/home/aitjcize/bin/touchpad-toggle")   end),
-
-    -- Dictionary
-    awful.key({ modkey,           }, "d",     function () awful.util.spawn("/home/aitjcize/bin/notify-dict" )   end),
 
     -- Lock
-    awful.key({ modkey, "Shift"   }, "l",     function () awful.util.spawn("i3lock -i /home/aitjcize/.config/awesome/themes/daes/background.png" )   end),
+    awful.key({ modkey, "Shift"   }, "l",     function () awful.util.spawn("i3lock -i " .. home  .. "/.config/awesome/themes/daes/background3.jpg" )   end),
 
     -- Xterm
     awful.key({ modkey,           }, "t",     function () awful.util.spawn("xterm" )   end)
@@ -690,13 +677,16 @@ function run_once(prg, arg_string, pname, screen)
     end
 end
 
-run_once("start-pulseaudio-x11")
-run_once("gcin")
-run_once("conky", "-d")
-run_once("nm-applet")
-run_once("xautolock", " -time 30 -locker 'i3lock -i /home/aitjcize/.config/awesome/themes/daes/background.png; sudo pm-suspend' -detectsleep")
-run_once("udisks-glue")
-run_once("sleep 10s && dropboxd", nil, "dropbox")
+run_once("ibus-daemon")
+run_once("xautolock", " -time 30 -locker 'i3lock -i /home/aitjcize/.config/awesome/themes/daes/background3.png' -detectsleep")
+run_once("python3", "/usr/share/goobuntu-indicator/goobuntu_indicator.py")
+
+-- run_once("start-pulseaudio-x11")
+-- run_once("gcin")
+-- run_once("nm-applet")
+-- run_once("conky", "-d")
+-- -run_once("udisks-glue")
+-- run_once("sleep 10s && dropboxd", nil, "dropbox")
 -- run_once("mate-power-manager")
 -- run_once("sleep 20s && pidgin", nil, "pidgin")
 -- run_once("batti")
