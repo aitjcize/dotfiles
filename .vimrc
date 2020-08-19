@@ -1,53 +1,50 @@
 " Set nocompatible
 set nocompatible
 
-" Vundle
-filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-" let Vundle manage Vundle
-Plugin 'VundleVim/Vundle.vim'
+" Plugged
+call plug#begin('~/.vim/plugged')
 
 " original repos on github
-Plugin 'junegunn/fzf.vim'
-Plugin 'SirVer/ultisnips'
-Plugin 'honza/vim-snippets'
-Plugin 'ycm-core/YouCompleteMe'
-Plugin 'aitjcize/vim-tomorrow-theme'
-Plugin 'benmills/vimux'
-Plugin 'fatih/vim-go'
-Plugin 'godlygeek/tabular'
-Plugin 'martinda/Jenkinsfile-vim-syntax'
-Plugin 'mxw/vim-jsx'
-Plugin 'mzlogin/vim-markdown-toc'
-Plugin 'plasticboy/vim-markdown'
-Plugin 'taxilian/a.vim'
-Plugin 'tomlion/vim-solidity'
-Plugin 'tpope/vim-fugitive'
-Plugin 'HerringtonDarkholme/yats.vim'
-Plugin 'peitalin/vim-jsx-typescript'
-Plugin 'airblade/vim-gitgutter'
-Plugin 'dart-lang/dart-vim-plugin'
-Plugin 'isruslan/vim-es6'
-Plugin 'Quramy/tsuquyomi'
-Plugin 'prettier/vim-prettier'
-Plugin 'rust-lang/rust.vim'
+Plug 'junegunn/fzf.vim'
+" Plugin 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+" Plug 'ycm-core/YouCompleteMe'
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'aitjcize/vim-tomorrow-theme'
+Plug 'benmills/vimux'
+Plug 'fatih/vim-go'
+Plug 'godlygeek/tabular'
+Plug 'martinda/Jenkinsfile-vim-syntax'
+Plug 'mxw/vim-jsx'
+Plug 'mzlogin/vim-markdown-toc'
+Plug 'plasticboy/vim-markdown'
+Plug 'taxilian/a.vim'
+Plug 'tomlion/vim-solidity'
+Plug 'tpope/vim-fugitive'
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'airblade/vim-gitgutter'
+Plug 'dart-lang/dart-vim-plugin'
+Plug 'isruslan/vim-es6'
+Plug 'Quramy/tsuquyomi'
+Plug 'prettier/vim-prettier'
+Plug 'rust-lang/rust.vim'
+Plug 'hsanson/vim-android'
+Plug 'ngg/vim-gn'
+Plug 'rubberduck203/aosp-vim'
 
 " Nerd Tree
-Plugin 'scrooloose/nerdtree'
-Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plug 'scrooloose/nerdtree'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " vim-scripts repos
-Plugin 'gtk-vim-syntax'
-Plugin 'local_vimrc.vim'
-Plugin 'matchit.zip'
+Plug 'vim-scripts/gtk-vim-syntax'
+Plug 'vim-scripts/local_vimrc.vim'
+Plug 'vim-scripts/matchit.zip'
+Plug 'vim-scripts/hex.vim'
 
-" non github repos
-" Plugin 'git://git.wincent.com/command-t.git'
-
-call vundle#end()
+call plug#end()
 
 " Basic Settings
 set background=dark
