@@ -170,12 +170,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
 
-# Flutter
-export PATH=$HOME/Work/flutter/bin:$PATH
-
-# ESP-IDF
-export IDF_PATH=$HOME/Work/esp-idf
-
 # Misc alias
 alias gg='git grep'
+
 alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
