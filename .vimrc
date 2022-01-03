@@ -8,7 +8,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'junegunn/fzf.vim'
 " Plugin 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
-" Plug 'ycm-core/YouCompleteMe'
+Plug 'ycm-core/YouCompleteMe'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'aitjcize/vim-tomorrow-theme'
 Plug 'benmills/vimux'
@@ -32,6 +32,8 @@ Plug 'rust-lang/rust.vim'
 Plug 'hsanson/vim-android'
 Plug 'ngg/vim-gn'
 Plug 'rubberduck203/aosp-vim'
+" Plug 'vim-syntastic/syntastic'
+Plug 'racer-rust/vim-racer'
 
 " Nerd Tree
 Plug 'scrooloose/nerdtree'
@@ -306,3 +308,26 @@ nnoremap <c-p> :GFiles<cr>
 " Prettier
 let g:prettier#autoformat = 0
 autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
+
+" Syntastic
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 0
+
+" Racer
+augroup Racer
+    autocmd!
+    autocmd FileType rust nmap <buffer> gd         <Plug>(rust-def)
+    autocmd FileType rust nmap <buffer> gs         <Plug>(rust-def-split)
+    autocmd FileType rust nmap <buffer> gx         <Plug>(rust-def-vertical)
+    autocmd FileType rust nmap <buffer> gt         <Plug>(rust-def-tab)
+    autocmd FileType rust nmap <buffer> <leader>gd <Plug>(rust-doc)
+    autocmd FileType rust nmap <buffer> <leader>gD <Plug>(rust-doc-tab)
+augroup END
+
+let g:ycm_auto_hover=''
+nmap <leader>D <plug>(YCMHover)
