@@ -6,11 +6,10 @@ call plug#begin('~/.vim/plugged')
 
 " original repos on github
 Plug 'junegunn/fzf.vim'
-" Plugin 'SirVer/ultisnips'
+Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
-Plug 'ycm-core/YouCompleteMe'
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'aitjcize/vim-tomorrow-theme'
+"Plug 'ycm-core/YouCompleteMe'
+Plug 'chriskempson/vim-tomorrow-theme'
 Plug 'benmills/vimux'
 Plug 'fatih/vim-go'
 Plug 'godlygeek/tabular'
@@ -34,6 +33,7 @@ Plug 'ngg/vim-gn'
 Plug 'rubberduck203/aosp-vim'
 " Plug 'vim-syntastic/syntastic'
 Plug 'racer-rust/vim-racer'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Nerd Tree
 Plug 'scrooloose/nerdtree'
@@ -65,10 +65,11 @@ set tenc=utf8
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc
 set t_Co=256
 set tags+=./tags;/
+set mouse=
 
 syntax on
 filetype plugin indent on
-colorscheme Tomorrow-Night-Bright
+colorscheme Tomorrow-Night
 
 " Cursor line
 set cursorline
@@ -88,7 +89,7 @@ augroup END
 " Highlight settings
 highlight TabLine cterm=underline
 highlight TabLine ctermfg=green
-highlight ColorColumn ctermbg=lightblue
+highlight ColorColumn ctermbg=darkgrey
 highlight Pmenu ctermfg=lightgrey
 highlight PmenuSel ctermfg=lightgrey
 highlight ExtraWhitespace ctermbg=red guibg=red
@@ -103,14 +104,11 @@ autocmd BufRead,BufNewFile *bot set filetype=json
 " For c, cpp, sh
 autocmd Filetype vim,c,cpp,proto,cuda,sh,html,eruby,htmldjango,javascript,typescript,typescript.tsx,sql,scss,lex,ruby,xml,opencl,json set cindent softtabstop=2 shiftwidth=2 tabstop=2 expandtab textwidth=80
 
-" GLSL
 autocmd BufNewFile,BufRead *.vp,*.fp,*.vert,*.frag,*.shd,*.gls set filetype=gls cindent comments=sr:/*,mbl:*,ex:*/,:// cindent softtabstop=2 shiftwidth=2 expandtab textwidth=80
 
-" For python, matlab
-autocmd Filetype python,matlab,css,java set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
 
-" For solidity.
-autocmd Filetype python,matlab,css,java,solidity set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=99 colorcolumn=101
+autocmd Filetype python,matlab,css,java set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=80
+autocmd Filetype matlab,css,java,solidity,rust set cindent softtabstop=4 shiftwidth=4 expandtab textwidth=99 colorcolumn=101
 
 
 " For Go
@@ -280,6 +278,8 @@ let g:UltiSnipsJumpBackwardTrigger="<c-h>"
 " YouCompleteMe
 "let g:ycm_key_list_select_completion = ['<Down>']
 "let g:ycm_key_list_previous_completion = ['<Up>']
+highlight YcmWarningSection ctermbg=100
+highlight YcmErrorSection ctermbg=88
 
 " NERDTree
 command! NT NERDTreeToggle
@@ -322,6 +322,7 @@ autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.gra
 augroup Racer
     autocmd!
     autocmd FileType rust nmap <buffer> gd         <Plug>(rust-def)
+    autocmd FileType rust nmap <buffer> <C-]>      <Plug>(rust-def)
     autocmd FileType rust nmap <buffer> gs         <Plug>(rust-def-split)
     autocmd FileType rust nmap <buffer> gx         <Plug>(rust-def-vertical)
     autocmd FileType rust nmap <buffer> gt         <Plug>(rust-def-tab)
@@ -331,3 +332,49 @@ augroup END
 
 let g:ycm_auto_hover=''
 nmap <leader>D <plug>(YCMHover)
+
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all" (the five listed parsers should always be installed)
+  ensure_installed = { "c", "cpp", "python", "lua", "vim", "vimdoc", "query" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- Automatically install missing parsers when entering buffer
+  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+  auto_install = true,
+
+  -- List of parsers to ignore installing (for "all")
+  ignore_install = { "javascript" },
+
+  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
+  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+
+  highlight = {
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = { },
+    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+    disable = function(lang, buf)
+        local max_filesize = 100 * 1024 -- 100 KB
+        local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+        if ok and stats and stats.size > max_filesize then
+            return true
+        end
+    end,
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
+
+autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * checktime

@@ -4,6 +4,7 @@
 [alias]
     lg = log --graph --pretty=format:'%C(cyan bold)%h%Creset -%C(yellow bold)%d%Creset %s %C(magenta bold)(%cr)%Creset' --abbrev-commit --date=relative
     co = checkout
+    cp = cherry-pick
 [color]
     diff = auto
     status = auto
