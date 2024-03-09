@@ -35,3 +35,6 @@ git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_DIR/zsh-autosugges
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall
+
+# nvim
+ln -s $SRC/nvim ~/.config/nvim
