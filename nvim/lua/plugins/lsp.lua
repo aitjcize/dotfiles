@@ -68,6 +68,21 @@ local function setup_cmp()
       end,
     },
     mapping = cmp.mapping.preset.insert({
+      ['<C-p>'] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        else
+          fallback()
+        end
+      end, { 'i', 's' }),
+
+      ['<C-n>'] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_next_item()
+        else
+          fallback()
+        end
+      end, { 'i', 's' }),
       ['<C-u>'] = cmp.mapping.scroll_docs(-4), -- Up
       ['<C-d>'] = cmp.mapping.scroll_docs(4),  -- Down
       -- C-b (back) C-f (forward) for snippet placeholder navigation.

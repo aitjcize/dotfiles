@@ -5,7 +5,7 @@ local function set_filetype_format()
     pattern = {
       'vim', 'lua', 'c', 'cpp', 'proto', 'cuda', 'sh', 'html', 'eruby', 'htmldjango',
       'javascript', 'typescript', 'typescript.tsx', 'sql', 'scss', 'lex',
-      'ruby', 'xml', 'opencl', 'json', 'go'
+      'ruby', 'xml', 'opencl', 'json', 'go', 'python'
     },
     callback = function()
       vim.opt.cindent = true
