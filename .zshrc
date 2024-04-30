@@ -71,9 +71,6 @@ local YELLOW="%{[1;33m%}"
 local WHITE="%{[1;37m%}"
 local MAGENTA="%{[1;35m%}"
 local NO_COLOUR="%{[0m%}"
-PS2='`%_> '       # secondary prompt, printed when the shell needs more information to complete a command.
-PS3='?# '         # selection prompt used within a select loop.
-PS4='+%N:%i:%_> ' # the execution trace prompt (setopt xtrace). default: '+%N:%i>'
 
 local HOST_COLOR=$YELLOW
 local USER_COLOR=$YELLOW
@@ -98,14 +95,6 @@ then
   unfunction preexec
   PS1='$ '
 fi
-
-# Some key bindings
-bindkey "\e[H" beginning-of-line
-bindkey "\e[F" end-of-line
-bindkey "\e[3~" delete-char
-
-bindkey "\e[1~" beginning-of-line
-bindkey "\e[4~" end-of-line
 
 # Some env
 if [ -x /usr/bin/dircolors ]; then
