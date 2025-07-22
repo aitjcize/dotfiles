@@ -10,7 +10,7 @@
     status = auto
     branch = auto
 [core]
-    editor = vim
+    editor = nvim
     pager = less
     deltaBaseCacheLimit = 1G
 [push]

@@ -108,7 +108,7 @@ export GOPATH=$HOME/go
 export PATH=/usr/local/opt/coreutils/libexec/gnubin:$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/.rvm/bin:$GOPATH/bin:$PATH
 
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-    vim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
+    nvim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
     -c 'map <SPACE> <C-D>' -c 'map b <C-U>' \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 
@@ -130,17 +130,8 @@ export LC_TIME=en_US.UTF-8'
 en_locale
 
 # Evironment
-export EDITOR=vim
+export EDITOR=nvim
 export BROWSER=google-chrome-beta
-
-# SSH agent
-if [ ! -S $HOME/.ssh/ssh_auth_sock ]; then
-    eval $(ssh-agent)
-    ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
-fi
-
-export SSH_AUTH_SOCK=$HOME/.ssh/ssh_auth_sock
-ssh-add -l | grep "Please add identity to ssh-agent." && ssh-add
 
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
@@ -155,11 +146,6 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-[ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
-
 # Misc alias
-alias gg='git grep'
-
+alias vim=nvim
 alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
