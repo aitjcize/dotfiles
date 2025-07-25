@@ -105,7 +105,7 @@ fi
 export GOPATH=$HOME/go
 
 # PATH
-export PATH=/usr/local/opt/coreutils/libexec/gnubin:$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:/usr/bin/vendor_perl:$HOME/.rvm/bin:$GOPATH/bin:$PATH
+export PATH=/opt/homebrew/bin:$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:$HOME/.rvm/bin:$GOPATH/bin:$PATH
 
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     nvim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
@@ -132,6 +132,7 @@ en_locale
 # Evironment
 export EDITOR=nvim
 export BROWSER=google-chrome-beta
+export TERM=xterm-256color
 
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
