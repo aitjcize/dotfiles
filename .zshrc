@@ -78,9 +78,8 @@ local USER_COLOR=$YELLOW
 if [[ `whoami` == 'root' ]]; then
   USER_COLOR=$RED
 fi
-if [[ `hostname` != 'azslaptop' ]]; then
-  HOST_COLOR=$GREEN
-fi
+
+HOST_COLOR=$GREEN
 
 PROMPT="${WHITE}[${RED}${EXITCODE}${CYAN}${JOBS}${MAGENTA}%* ${USER_COLOR}%n${YELLOW}@${HOST_COLOR}%m:${BLUE}%40<...<%B%~%b%<<"${GREEN}'${vcs_info_msg_0_}'${WHITE}]"
 ${GREEN}%# ${NO_COLOUR}"
@@ -101,9 +100,6 @@ if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-# Go
-export GOPATH=$HOME/go
-
 # PATH
 export PATH=/opt/homebrew/bin:$HOME/.cargo/bin:$HOME/bin:/usr/lib/colorgcc/bin:/sbin:/usr/sbin:$HOME/.rvm/bin:$GOPATH/bin:$PATH
 
@@ -112,27 +108,17 @@ export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     -c 'map <SPACE> <C-D>' -c 'map b <C-U>' \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 
-# Locale switching
-alias zh_locale='
-export LC_ALL=zh_TW.UTF-8
-export LANG=zh_TW.UTF-8
-export LANGUAGE=zh_TW.UTF-8
-export LC_MESSAGE=zh_TW.UTF-8
-export LC_TIME=zh_TW.UTF-8'
-
-alias en_locale='
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 export LC_MESSAGE=en_US.UTF-8
-export LC_TIME=en_US.UTF-8'
-
-en_locale
+export LC_TIME=en_US.UTF-8
 
 # Evironment
 export EDITOR=nvim
 export BROWSER=google-chrome-beta
 export TERM=xterm-256color
+export COLORTERM=yes
 
 # Zsh plugins
 ZSH_DIR=$HOME/bin/zsh
@@ -141,12 +127,22 @@ ZSH_DIR=$HOME/bin/zsh
 [ -f $ZSH_DIR/kubectl.plugin.zsh ] && source $ZSH_DIR/kubectl.plugin.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Fzf
 export FZF_DEFAULT_COMMAND='fd --type f'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Misc plugins
 source $HOME/bin/autojump.git/bin/autojump.zsh
 
+# Go
+export GOPATH=$HOME/go
+
 # Misc alias
 alias vim=nvim
 alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
+
+# NVM on MacOS
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
