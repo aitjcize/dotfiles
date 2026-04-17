@@ -1,0 +1,322 @@
+#!/usr/bin/env bash
+# Reclaim disk space by clearing safely-prunable caches and VM state.
+#
+# Default run (safe — everything regenerates on next use):
+#   - Docker build cache
+#   - Claude Desktop sandbox VM (rootfs.img)
+#   - BambuStudio logs
+#   - Go module cache + build cache
+#   - uv (Python) cache
+#   - npm cache
+#   - Spotify cache
+#   - Homebrew old versions + downloads
+#   - Gradle caches
+#   - Dart/Flutter pub-cache
+#   - Discord cache
+#   - Raycast old update installers
+#
+# With --node-modules:
+#   - Also delete node_modules dirs under ~/Work whose project
+#     hasn't been touched in 90+ days (by package.json mtime).
+#
+# With --build-artifacts:
+#   - Also delete .venv/build/target/dist/.next/.turbo dirs under ~/Work
+#     whose project marker file is untouched >90d.
+#
+# Skips any target whose owning app is currently running.
+
+set -u
+
+RED=$'\e[31m'; GRN=$'\e[32m'; YLW=$'\e[33m'; BLU=$'\e[34m'; DIM=$'\e[2m'; RST=$'\e[0m'
+
+info()  { printf '%s[·]%s %s\n' "$BLU" "$RST" "$*"; }
+ok()    { printf '%s[✓]%s %s\n' "$GRN" "$RST" "$*"; }
+warn()  { printf '%s[!]%s %s\n' "$YLW" "$RST" "$*"; }
+skip()  { printf '%s[-]%s %s\n' "$DIM" "$RST" "$*"; }
+
+CLEAN_NODE_MODULES=0
+CLEAN_BUILD_ARTIFACTS=0
+for arg in "$@"; do
+  case "$arg" in
+    --node-modules)    CLEAN_NODE_MODULES=1 ;;
+    --build-artifacts) CLEAN_BUILD_ARTIFACTS=1 ;;
+    --all)             CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1 ;;
+    -h|--help)
+      sed -n '/^# Reclaim/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    *) echo "unknown arg: $arg" >&2; exit 2 ;;
+  esac
+done
+
+data_used_gib() {
+  df -g /System/Volumes/Data 2>/dev/null | awk 'NR==2 {print $3}'
+}
+
+human_size() {
+  [[ -e "$1" ]] || { echo "-"; return; }
+  du -sh "$1" 2>/dev/null | awk '{print $1}'
+}
+
+app_running() { pgrep -qf "$1"; }
+
+clean_docker() {
+  info "Docker build cache"
+  if ! command -v docker >/dev/null 2>&1; then skip "docker not installed"; return; fi
+  if ! docker info >/dev/null 2>&1; then
+    skip "Docker daemon not running — start Docker Desktop to prune"
+    return
+  fi
+  docker builder prune -af >/dev/null 2>&1 && ok "Docker build cache pruned" \
+    || warn "docker builder prune failed"
+}
+
+clean_claude_vm() {
+  local img="$HOME/Library/Application Support/Claude/vm_bundles/claudevm.bundle/rootfs.img"
+  info "Claude Desktop sandbox VM"
+  if [[ ! -f "$img" ]]; then skip "rootfs.img not present"; return; fi
+  if app_running "Claude.app/Contents/MacOS/Claude"; then
+    warn "Claude Desktop is running — quit it and re-run to reclaim"
+    return
+  fi
+  local size; size=$(human_size "$img")
+  rm -f "$img" && ok "Deleted rootfs.img ($size) — VM will rebuild on next launch"
+}
+
+clean_bambu_logs() {
+  local dir="$HOME/Library/Application Support/BambuStudio/log"
+  info "BambuStudio logs"
+  if [[ ! -d "$dir" ]]; then skip "log dir not present"; return; fi
+  if app_running "BambuStudio"; then
+    warn "Bambu Studio is running — quit it and re-run to reclaim"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  if [[ "$size" == "-" || "$size" == "0B" ]]; then skip "nothing to clean"; return; fi
+  find "$dir" -mindepth 1 -delete 2>/dev/null && ok "Cleared BambuStudio logs ($size)"
+}
+
+clean_go_caches() {
+  info "Go caches (module + build)"
+  if ! command -v go >/dev/null 2>&1; then skip "go not installed"; return; fi
+  local mod build
+  mod=$(human_size "$(go env GOMODCACHE 2>/dev/null)")
+  build=$(human_size "$(go env GOCACHE 2>/dev/null)")
+  # go clean -modcache requires chmod +w on read-only module files; it handles that itself.
+  go clean -modcache 2>/dev/null && ok "Go module cache cleared (${mod})" \
+    || warn "go clean -modcache failed"
+  go clean -cache 2>/dev/null && ok "Go build cache cleared (${build})" \
+    || warn "go clean -cache failed"
+}
+
+clean_uv_cache() {
+  info "uv (Python) cache"
+  if ! command -v uv >/dev/null 2>&1; then skip "uv not installed"; return; fi
+  local size; size=$(human_size "$HOME/.cache/uv")
+  uv cache clean >/dev/null 2>&1 && ok "uv cache cleared (${size})" \
+    || warn "uv cache clean failed"
+}
+
+clean_npm_cache() {
+  info "npm cache"
+  if ! command -v npm >/dev/null 2>&1; then skip "npm not installed"; return; fi
+  local size; size=$(human_size "$HOME/.npm")
+  npm cache clean --force >/dev/null 2>&1 && ok "npm cache cleared (${size})" \
+    || warn "npm cache clean failed"
+}
+
+clean_homebrew() {
+  info "Homebrew (old versions + downloads)"
+  if ! command -v brew >/dev/null 2>&1; then skip "brew not installed"; return; fi
+  local out
+  out=$(brew cleanup --prune=all 2>&1)
+  # brew prints a summary line like "This operation has freed approximately X of disk space."
+  local freed
+  freed=$(printf '%s\n' "$out" | awk -F'approximately ' '/freed approximately/ {print $2; exit}' | sed 's/ of.*//')
+  if [[ -n "$freed" ]]; then
+    ok "Homebrew cleaned (${freed} freed)"
+  else
+    ok "Homebrew cleaned (nothing to remove)"
+  fi
+}
+
+clean_spotify_cache() {
+  local dir="$HOME/Library/Caches/com.spotify.client"
+  info "Spotify cache"
+  if [[ ! -d "$dir" ]]; then skip "not present"; return; fi
+  if app_running "Spotify"; then
+    warn "Spotify is running — quit it and re-run to reclaim"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  find "$dir" -mindepth 1 -delete 2>/dev/null && ok "Spotify cache cleared (${size})"
+}
+
+clean_gradle() {
+  local dir="$HOME/.gradle/caches"
+  info "Gradle caches"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  local size; size=$(human_size "$dir")
+  rm -rf "$dir" && ok "Gradle caches cleared (${size})"
+}
+
+clean_pub_cache() {
+  info "Dart/Flutter pub-cache"
+  if command -v dart >/dev/null 2>&1; then
+    local size; size=$(human_size "$HOME/.pub-cache")
+    dart pub cache clean -f >/dev/null 2>&1 && ok "pub-cache cleared (${size})" \
+      || warn "dart pub cache clean failed"
+  else
+    local dir="$HOME/.pub-cache"
+    [[ -d "$dir" ]] || { skip "not present"; return; }
+    local size; size=$(human_size "$dir")
+    # Keep the directory (Flutter re-uses it); just clear hosted/git contents
+    find "$dir" -mindepth 1 -delete 2>/dev/null && ok "pub-cache cleared (${size})"
+  fi
+}
+
+clean_discord() {
+  local dir="$HOME/Library/Application Support/discord/Cache"
+  info "Discord cache"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  if app_running "Discord.app/Contents/MacOS/Discord"; then
+    warn "Discord is running — quit to reclaim"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  find "$dir" -mindepth 1 -delete 2>/dev/null && ok "Discord cache cleared (${size})"
+}
+
+clean_raycast_updates() {
+  local dir="$HOME/Library/Application Support/com.raycast.macos/Updates"
+  info "Raycast old update installers"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  local size; size=$(human_size "$dir")
+  find "$dir" -mindepth 1 -delete 2>/dev/null && ok "Raycast updates cleared (${size})"
+}
+
+clean_stale_node_modules() {
+  local root="$HOME/Work"
+  local stale_days=90
+  info "Stale node_modules under $root (package.json untouched >${stale_days}d)"
+  [[ -d "$root" ]] || { skip "no $root"; return; }
+
+  local total_k=0 count=0
+  local cutoff
+  cutoff=$(date -v-${stale_days}d +%s)
+
+  # Iterate over every node_modules we can find under ~/Work.
+  while IFS= read -r -d '' nm; do
+    local project; project="$(dirname "$nm")"
+    local pkg="$project/package.json"
+    [[ -f "$pkg" ]] || continue
+    local mtime; mtime=$(stat -f %m "$pkg" 2>/dev/null) || continue
+    if (( mtime < cutoff )); then
+      local kb; kb=$(du -sk "$nm" 2>/dev/null | awk '{print $1}')
+      local size; size=$(human_size "$nm")
+      rm -rf "$nm" && {
+        printf '  %s✓%s %s (%s)\n' "$GRN" "$RST" "${project#$HOME/}" "$size"
+        total_k=$((total_k + kb))
+        count=$((count + 1))
+      }
+    fi
+  done < <(find "$root" -type d -name node_modules -prune -print0 2>/dev/null)
+
+  if (( count == 0 )); then
+    skip "none stale"
+  else
+    local mb=$((total_k / 1024))
+    ok "Removed $count stale node_modules dir(s), ~${mb}M total"
+  fi
+}
+
+# Delete build/venv dirs under ~/Work for projects whose marker file
+# (package.json, pyproject.toml, requirements.txt, Cargo.toml, CMakeLists.txt,
+#  platformio.ini, pubspec.yaml, go.mod) is untouched >90d.
+clean_stale_build_artifacts() {
+  local root="$HOME/Work"
+  local stale_days=90
+  info "Stale build/venv dirs under $root (>${stale_days}d)"
+  [[ -d "$root" ]] || { skip "no $root"; return; }
+
+  local cutoff; cutoff=$(date -v-${stale_days}d +%s)
+  local total_k=0 count=0
+
+  # Dir names we consider artifacts (one per project, regenerable).
+  local names=(.venv venv build target dist .next .turbo)
+  local name_filter=()
+  local n
+  for n in "${names[@]}"; do
+    name_filter+=(-o -name "$n")
+  done
+  # Strip the leading -o
+  name_filter=("${name_filter[@]:1}")
+
+  # Markers that indicate an active project.
+  local markers=(package.json pyproject.toml requirements.txt setup.py \
+                 Cargo.toml CMakeLists.txt platformio.ini pubspec.yaml go.mod)
+
+  while IFS= read -r -d '' dir; do
+    local project; project="$(dirname "$dir")"
+    # Find newest marker mtime.
+    local newest=0 m mtime
+    for m in "${markers[@]}"; do
+      [[ -f "$project/$m" ]] || continue
+      mtime=$(stat -f %m "$project/$m" 2>/dev/null) || continue
+      (( mtime > newest )) && newest=$mtime
+    done
+    (( newest == 0 )) && continue  # no marker — skip, unsafe to judge
+    if (( newest < cutoff )); then
+      local kb; kb=$(du -sk "$dir" 2>/dev/null | awk '{print $1}')
+      local size; size=$(human_size "$dir")
+      rm -rf "$dir" && {
+        printf '  %s✓%s %s (%s)\n' "$GRN" "$RST" "${dir#$HOME/}" "$size"
+        total_k=$((total_k + kb))
+        count=$((count + 1))
+      }
+    fi
+  done < <(find "$root" -type d \( "${name_filter[@]}" \) -prune -print0 2>/dev/null)
+
+  if (( count == 0 )); then
+    skip "none stale"
+  else
+    local mb=$((total_k / 1024))
+    ok "Removed $count stale artifact dir(s), ~${mb}M total"
+  fi
+}
+
+main() {
+  local before after
+  before=$(data_used_gib)
+  printf '%sBefore:%s %sG used on Data volume\n\n' "$BLU" "$RST" "$before"
+
+  clean_docker
+  clean_claude_vm
+  clean_bambu_logs
+  clean_go_caches
+  clean_uv_cache
+  clean_npm_cache
+  clean_spotify_cache
+  clean_homebrew
+  clean_gradle
+  clean_pub_cache
+  clean_discord
+  clean_raycast_updates
+  (( CLEAN_NODE_MODULES ))    && clean_stale_node_modules
+  (( CLEAN_BUILD_ARTIFACTS )) && clean_stale_build_artifacts
+
+  after=$(data_used_gib)
+  local reclaimed=$((before - after))
+  printf '\n%sAfter:%s  %sG used on Data volume ' "$BLU" "$RST" "$after"
+  if (( reclaimed > 0 )); then
+    printf '(%s-%sG reclaimed%s)\n' "$GRN" "$reclaimed" "$RST"
+  else
+    printf '(no net change — Docker VM may need compacting via Docker Desktop → Troubleshoot → Clean/Purge data)\n'
+  fi
+
+  if (( ! CLEAN_NODE_MODULES || ! CLEAN_BUILD_ARTIFACTS )); then
+    printf '\n%sTip:%s re-run with %s--node-modules%s / %s--build-artifacts%s / %s--all%s for more aggressive cleanup of stale ~/Work projects.\n' \
+      "$DIM" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST"
+  fi
+}
+
+main "$@"
