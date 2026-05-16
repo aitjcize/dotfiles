@@ -23,6 +23,11 @@
 #   - Also delete .venv/build/target/dist/.next/.turbo dirs under ~/Work
 #     whose project marker file is untouched >90d.
 #
+# With --ios-simulators:
+#   - Also delete all installed iOS/watchOS/tvOS/visionOS Simulator
+#     runtimes (19GB+) and unavailable simulator devices. Re-downloadable
+#     via Xcode → Settings → Platforms.
+#
 # Skips any target whose owning app is currently running.
 
 set -u
@@ -36,11 +41,13 @@ skip()  { printf '%s[-]%s %s\n' "$DIM" "$RST" "$*"; }
 
 CLEAN_NODE_MODULES=0
 CLEAN_BUILD_ARTIFACTS=0
+CLEAN_IOS_SIMULATORS=0
 for arg in "$@"; do
   case "$arg" in
     --node-modules)    CLEAN_NODE_MODULES=1 ;;
     --build-artifacts) CLEAN_BUILD_ARTIFACTS=1 ;;
-    --all)             CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1 ;;
+    --ios-simulators)  CLEAN_IOS_SIMULATORS=1 ;;
+    --all)             CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1; CLEAN_IOS_SIMULATORS=1 ;;
     -h|--help)
       sed -n '/^# Reclaim/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
       exit 0 ;;
@@ -284,6 +291,53 @@ clean_stale_build_artifacts() {
   fi
 }
 
+clean_ios_simulators() {
+  info "iOS Simulator runtimes + unavailable devices"
+  if ! command -v xcrun >/dev/null 2>&1; then
+    skip "xcrun not installed"
+    return
+  fi
+  if app_running "Simulator.app/Contents/MacOS/Simulator"; then
+    warn "Simulator.app is running — quit it and re-run to reclaim"
+    return
+  fi
+
+  local sim_dir="/Library/Developer/CoreSimulator"
+  local before=""
+  [[ -d "$sim_dir" ]] && before=$(human_size "$sim_dir")
+
+  # Remove simulator devices whose runtime is missing (safe, they're dead refs).
+  xcrun simctl delete unavailable >/dev/null 2>&1 || true
+
+  # Parse installed runtime identifiers from `simctl runtime list`.
+  local ids
+  ids=$(xcrun simctl runtime list 2>/dev/null \
+    | awk '{for(i=1;i<=NF;i++) if($i~/^com\.apple\.CoreSimulator\.SimRuntime\./) {print $i; next}}')
+
+  if [[ -z "$ids" ]]; then
+    skip "no simulator runtimes installed"
+    return
+  fi
+
+  local count=0
+  while IFS= read -r id; do
+    [[ -z "$id" ]] && continue
+    if xcrun simctl runtime delete "$id" >/dev/null 2>&1; then
+      printf '  %s✓%s %s\n' "$GRN" "$RST" "$id"
+      count=$((count + 1))
+    fi
+  done <<< "$ids"
+
+  local after=""
+  [[ -d "$sim_dir" ]] && after=$(human_size "$sim_dir")
+
+  if (( count > 0 )); then
+    ok "Removed $count simulator runtime(s) (${before:-?} -> ${after:-?})"
+  else
+    skip "nothing removed"
+  fi
+}
+
 main() {
   local before after
   before=$(data_used_gib)
@@ -303,6 +357,7 @@ main() {
   clean_raycast_updates
   (( CLEAN_NODE_MODULES ))    && clean_stale_node_modules
   (( CLEAN_BUILD_ARTIFACTS )) && clean_stale_build_artifacts
+  (( CLEAN_IOS_SIMULATORS ))  && clean_ios_simulators
 
   after=$(data_used_gib)
   local reclaimed=$((before - after))
@@ -313,9 +368,9 @@ main() {
     printf '(no net change — Docker VM may need compacting via Docker Desktop → Troubleshoot → Clean/Purge data)\n'
   fi
 
-  if (( ! CLEAN_NODE_MODULES || ! CLEAN_BUILD_ARTIFACTS )); then
-    printf '\n%sTip:%s re-run with %s--node-modules%s / %s--build-artifacts%s / %s--all%s for more aggressive cleanup of stale ~/Work projects.\n' \
-      "$DIM" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST"
+  if (( ! CLEAN_NODE_MODULES || ! CLEAN_BUILD_ARTIFACTS || ! CLEAN_IOS_SIMULATORS )); then
+    printf '\n%sTip:%s re-run with %s--node-modules%s / %s--build-artifacts%s / %s--ios-simulators%s / %s--all%s for more aggressive cleanup.\n' \
+      "$DIM" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST"
   fi
 }
 

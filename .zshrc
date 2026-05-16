@@ -136,6 +136,7 @@ source $HOME/bin/autojump.git/bin/autojump.zsh
 
 # Go
 export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$PATH
 
 # Misc alias
 alias vim=nvim

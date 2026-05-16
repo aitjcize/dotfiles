@@ -1,30 +1,9 @@
 local function setup_lspconfig()
-  local lspconfig = require('lspconfig')
   local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-  if lspconfig.gopls then
-    lspconfig.gopls.setup {
-      capabilities = capabilities,
-    }
-  end
+  vim.lsp.config('*', { capabilities = capabilities })
 
-  if lspconfig.pyright then
-    lspconfig.pyright.setup {
-      capabilities = capabilities,
-    }
-  end
-
-  if lspconfig.clangd then
-    lspconfig.clangd.setup {
-      capabilities = capabilities,
-    }
-  end
-
-  if lspconfig.lua_ls then
-    lspconfig.lua_ls.setup {
-      capabilities = capabilities,
-    }
-  end
+  vim.lsp.enable({ 'gopls', 'pyright', 'clangd', 'lua_ls' })
 
   -- Use LspAttach autocommand to only map the following keys
   -- after the language server attaches to the current buffer
@@ -58,15 +37,9 @@ end
 
 local function setup_cmp()
   local cmp = require('cmp')
-  local luasnip = require('luasnip')
 
   -- ref: https://github.com/hrsh7th/nvim-cmp
   cmp.setup {
-    snippet = {
-      expand = function(args)
-        require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-      end,
-    },
     mapping = cmp.mapping.preset.insert({
       ['<C-p>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
@@ -85,7 +58,6 @@ local function setup_cmp()
       end, { 'i', 's' }),
       ['<C-u>'] = cmp.mapping.scroll_docs(-4), -- Up
       ['<C-d>'] = cmp.mapping.scroll_docs(4),  -- Down
-      -- C-b (back) C-f (forward) for snippet placeholder navigation.
       ['<C-Space>'] = cmp.mapping.complete(),
       ['<CR>'] = cmp.mapping.confirm {
         behavior = cmp.ConfirmBehavior.Replace,
@@ -94,8 +66,6 @@ local function setup_cmp()
       ['<Tab>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-        elseif luasnip.expand_or_jumpable() then
-          luasnip.expand_or_jump()
         else
           fallback()
         end
@@ -103,15 +73,12 @@ local function setup_cmp()
       ['<S-Tab>'] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
-        elseif luasnip.jumpable(-1) then
-          luasnip.jump(-1)
         else
           fallback()
         end
       end, { 'i', 's' }),
     }),
     sources = {
-      { name = 'luasnip' },
       { name = 'nvim_lsp' },
       { name = 'buffer' },
     },
@@ -126,26 +93,8 @@ return {
       {
         'hrsh7th/nvim-cmp',
         config = setup_cmp,
-        dependencies = {
-          {
-            "L3MON4D3/LuaSnip",
-            -- follow latest release.
-            version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-            -- install jsregexp (optional!).
-            build = "make install_jsregexp"
-          }
-        },
       },
       'hrsh7th/cmp-nvim-lsp',
-      {
-        'saadparwaiz1/cmp_luasnip',
-        dependencies = {
-          'honza/vim-snippets',
-        },
-        config = function()
-          require("luasnip.loaders.from_snipmate").lazy_load()
-        end
-      },
       {
         'folke/neodev.nvim',
         opts = {
