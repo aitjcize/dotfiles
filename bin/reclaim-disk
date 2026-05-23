@@ -4,16 +4,36 @@
 # Default run (safe — everything regenerates on next use):
 #   - Docker build cache
 #   - Claude Desktop sandbox VM (rootfs.img)
+#   - Claude Desktop Electron cache (Cache, Code Cache, GPUCache)
+#   - Claude Desktop ShipIt old installer cache
 #   - BambuStudio logs
 #   - Go module cache + build cache
+#   - Go tool caches (goimports, golangci-lint)
 #   - uv (Python) cache
+#   - pip cache
 #   - npm cache
+#   - node-gyp cache
+#   - Bun install cache (~/.bun/install/cache)
 #   - Spotify cache
 #   - Homebrew old versions + downloads
 #   - Gradle caches
 #   - Dart/Flutter pub-cache
+#   - Dart Analyzer server cache (~/.dartServer)
 #   - Discord cache
 #   - Raycast old update installers
+#   - Google Updater crx_cache (~/Library/.../GoogleUpdater/crx_cache)
+#   - Autodesk Fusion 360 webdeploy installer cache
+#     (~/Library/.../Autodesk/webdeploy/production) — re-downloaded by the
+#     Fusion 360 installer/launcher.
+#   - Chrome on-device ML models + component caches (OptGuide*, WasmTtsEngine,
+#     component_crx_cache, GraphiteDawnCache, etc.) — Chrome re-downloads or
+#     rebuilds these on demand. User profile data (Default/*) is left alone.
+#   - VSCode-electron IDE caches (Windsurf, Antigravity): Cache, CachedData,
+#     Code Cache, logs — only when the IDE is not running.
+#
+# With --playwright:
+#   - Also delete Playwright browser downloads (~/Library/Caches/ms-playwright).
+#     Off by default because playwright-mcp servers commonly hold them open.
 #
 # With --node-modules:
 #   - Also delete node_modules dirs under ~/Work whose project
@@ -42,12 +62,15 @@ skip()  { printf '%s[-]%s %s\n' "$DIM" "$RST" "$*"; }
 CLEAN_NODE_MODULES=0
 CLEAN_BUILD_ARTIFACTS=0
 CLEAN_IOS_SIMULATORS=0
+CLEAN_PLAYWRIGHT=0
 for arg in "$@"; do
   case "$arg" in
     --node-modules)    CLEAN_NODE_MODULES=1 ;;
     --build-artifacts) CLEAN_BUILD_ARTIFACTS=1 ;;
     --ios-simulators)  CLEAN_IOS_SIMULATORS=1 ;;
-    --all)             CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1; CLEAN_IOS_SIMULATORS=1 ;;
+    --playwright)      CLEAN_PLAYWRIGHT=1 ;;
+    --all)             CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1
+                       CLEAN_IOS_SIMULATORS=1; CLEAN_PLAYWRIGHT=1 ;;
     -h|--help)
       sed -n '/^# Reclaim/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
       exit 0 ;;
@@ -89,6 +112,44 @@ clean_claude_vm() {
   rm -f "$img" && ok "Deleted rootfs.img ($size) — VM will rebuild on next launch"
 }
 
+clean_claude_electron() {
+  local base="$HOME/Library/Application Support/Claude"
+  info "Claude Desktop Electron cache"
+  [[ -d "$base" ]] || { skip "not present"; return; }
+  if app_running "Claude.app/Contents/MacOS/Claude"; then
+    warn "Claude Desktop is running — quit it and re-run to reclaim"
+    return
+  fi
+  local total_k=0 d kb
+  for d in Cache "Code Cache" GPUCache DawnWebGPUCache DawnGraphiteCache; do
+    [[ -d "$base/$d" ]] || continue
+    kb=$(du -sk "$base/$d" 2>/dev/null | awk '{print $1}')
+    rm -rf "$base/$d" && total_k=$((total_k + kb))
+  done
+  if (( total_k > 0 )); then
+    ok "Claude Electron caches cleared (~$((total_k / 1024))M)"
+  else
+    skip "nothing to clean"
+  fi
+}
+
+clean_claude_shipit() {
+  local dir="$HOME/Library/Caches/com.anthropic.claudefordesktop.ShipIt"
+  info "Claude Desktop ShipIt (old installer cache)"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  # Only blow away the staged update bundles, keep ShipItState.plist + logs.
+  local total_k=0 staged kb
+  while IFS= read -r -d '' staged; do
+    kb=$(du -sk "$staged" 2>/dev/null | awk '{print $1}')
+    rm -rf "$staged" && total_k=$((total_k + kb))
+  done < <(find "$dir" -mindepth 1 -maxdepth 1 -name 'update.*' -print0 2>/dev/null)
+  if (( total_k > 0 )); then
+    ok "ShipIt installer cache cleared (~$((total_k / 1024))M)"
+  else
+    skip "nothing staged"
+  fi
+}
+
 clean_bambu_logs() {
   local dir="$HOME/Library/Application Support/BambuStudio/log"
   info "BambuStudio logs"
@@ -115,6 +176,21 @@ clean_go_caches() {
     || warn "go clean -cache failed"
 }
 
+clean_go_tool_caches() {
+  info "Go tool caches (goimports, golangci-lint)"
+  local total_k=0 d kb
+  for d in "$HOME/Library/Caches/goimports" "$HOME/Library/Caches/golangci-lint"; do
+    [[ -d "$d" ]] || continue
+    kb=$(du -sk "$d" 2>/dev/null | awk '{print $1}')
+    rm -rf "$d" && total_k=$((total_k + kb))
+  done
+  if (( total_k > 0 )); then
+    ok "Go tool caches cleared (~$((total_k / 1024))M)"
+  else
+    skip "nothing to clean"
+  fi
+}
+
 clean_uv_cache() {
   info "uv (Python) cache"
   if ! command -v uv >/dev/null 2>&1; then skip "uv not installed"; return; fi
@@ -129,6 +205,40 @@ clean_npm_cache() {
   local size; size=$(human_size "$HOME/.npm")
   npm cache clean --force >/dev/null 2>&1 && ok "npm cache cleared (${size})" \
     || warn "npm cache clean failed"
+}
+
+clean_pip_cache() {
+  info "pip cache"
+  local dir="$HOME/Library/Caches/pip"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  local size; size=$(human_size "$dir")
+  if command -v pip3 >/dev/null 2>&1; then
+    pip3 cache purge >/dev/null 2>&1 && ok "pip cache cleared (${size})" \
+      || { rm -rf "$dir" && ok "pip cache cleared via rm (${size})"; }
+  else
+    rm -rf "$dir" && ok "pip cache cleared (${size})"
+  fi
+}
+
+clean_node_gyp_cache() {
+  local dir="$HOME/Library/Caches/node-gyp"
+  info "node-gyp cache"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  local size; size=$(human_size "$dir")
+  rm -rf "$dir" && ok "node-gyp cache cleared (${size})"
+}
+
+clean_bun_cache() {
+  local dir="$HOME/.bun/install/cache"
+  info "Bun install cache"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  local size; size=$(human_size "$dir")
+  if command -v bun >/dev/null 2>&1; then
+    bun pm cache rm >/dev/null 2>&1 && ok "Bun cache cleared (${size})" \
+      || { rm -rf "$dir" && ok "Bun cache cleared via rm (${size})"; }
+  else
+    rm -rf "$dir" && ok "Bun cache cleared (${size})"
+  fi
 }
 
 clean_homebrew() {
@@ -179,6 +289,119 @@ clean_pub_cache() {
     # Keep the directory (Flutter re-uses it); just clear hosted/git contents
     find "$dir" -mindepth 1 -delete 2>/dev/null && ok "pub-cache cleared (${size})"
   fi
+}
+
+clean_dart_server() {
+  local dir="$HOME/.dartServer"
+  info "Dart Analyzer server cache"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  # Skip if dart analysis server is currently running.
+  if pgrep -qf 'dart.*analysis_server'; then
+    warn "dart analysis server is running — skipping"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  rm -rf "$dir" && ok "Dart Analyzer cache cleared (${size})"
+}
+
+clean_autodesk_webdeploy() {
+  local dir="$HOME/Library/Application Support/Autodesk/webdeploy/production"
+  info "Autodesk Fusion 360 webdeploy cache"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  if pgrep -qf 'Autodesk Fusion 360\|Fusion360'; then
+    warn "Fusion 360 is running — quit it and re-run to reclaim"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  rm -rf "$dir" && ok "Autodesk webdeploy cache cleared (${size}) — re-downloaded on next Fusion launch"
+}
+
+clean_chrome_models() {
+  local base="$HOME/Library/Application Support/Google/Chrome"
+  info "Chrome on-device ML models + component caches"
+  [[ -d "$base" ]] || { skip "not present"; return; }
+  if app_running "Google Chrome.app/Contents/MacOS/Google Chrome"; then
+    warn "Chrome is running — quit it and re-run to reclaim"
+    return
+  fi
+  # All Chrome-managed, regenerated on demand. Profile data under Default/ is
+  # deliberately NOT touched (extensions, cookies, history, sync, etc.).
+  local subs=(
+    OptGuideOnDeviceModel
+    OptGuideOnDeviceClassifierModel
+    optimization_guide_model_store
+    component_crx_cache
+    extensions_crx_cache
+    WasmTtsEngine
+    OnDeviceHeadSuggestModel
+    GraphiteDawnCache
+    ShaderCache
+    GrShaderCache
+    GPUCache
+    DawnWebGPUCache
+    DawnGraphiteCache
+  )
+  local total_k=0 sub kb
+  for sub in "${subs[@]}"; do
+    [[ -d "$base/$sub" ]] || continue
+    kb=$(du -sk "$base/$sub" 2>/dev/null | awk '{print $1}')
+    rm -rf "$base/$sub" && total_k=$((total_k + kb))
+  done
+  if (( total_k > 0 )); then
+    ok "Chrome model/cache dirs cleared (~$((total_k / 1024))M)"
+  else
+    skip "nothing to clean"
+  fi
+}
+
+clean_google_updater() {
+  local dir="$HOME/Library/Application Support/Google/GoogleUpdater/crx_cache"
+  info "Google Updater installer cache"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  local size; size=$(human_size "$dir")
+  find "$dir" -mindepth 1 -delete 2>/dev/null && ok "Google Updater cache cleared (${size})"
+}
+
+clean_vscode_electron_caches() {
+  info "VSCode-electron IDE caches (Windsurf, Antigravity)"
+  local base ide cleaned=0 total_k=0 sub kb
+  # name => process pattern
+  local -a ides=(Windsurf Antigravity)
+  local -a procs=("Windsurf.app/Contents/MacOS/Electron" "Antigravity.app/Contents/MacOS/Electron")
+  local i
+  for i in 0 1; do
+    ide="${ides[$i]}"
+    base="$HOME/Library/Application Support/$ide"
+    [[ -d "$base" ]] || continue
+    if app_running "${procs[$i]}" || app_running "$ide.app"; then
+      printf '  %s-%s %s running — skipped\n' "$DIM" "$RST" "$ide"
+      continue
+    fi
+    for sub in Cache CachedData "Code Cache" GPUCache logs Crashpad; do
+      [[ -d "$base/$sub" ]] || continue
+      kb=$(du -sk "$base/$sub" 2>/dev/null | awk '{print $1}')
+      rm -rf "$base/$sub" && total_k=$((total_k + kb))
+    done
+    cleaned=1
+    printf '  %s✓%s %s cleared\n' "$GRN" "$RST" "$ide"
+  done
+  if (( cleaned == 0 )); then
+    skip "nothing cleaned"
+  else
+    ok "VSCode-electron caches cleared (~$((total_k / 1024))M)"
+  fi
+}
+
+clean_playwright_browsers() {
+  local dir="$HOME/Library/Caches/ms-playwright"
+  info "Playwright browser downloads"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  if pgrep -qf 'playwright-mcp\|playwright/mcp' || pgrep -qf '@playwright/test'; then
+    warn "playwright process is running — skipping (kill MCP server and re-run)"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  rm -rf "$dir" && ok "Playwright browsers cleared (${size}) — re-download via 'npx playwright install'"
 }
 
 clean_discord() {
@@ -345,16 +568,28 @@ main() {
 
   clean_docker
   clean_claude_vm
+  clean_claude_electron
+  clean_claude_shipit
   clean_bambu_logs
   clean_go_caches
+  clean_go_tool_caches
   clean_uv_cache
+  clean_pip_cache
   clean_npm_cache
+  clean_node_gyp_cache
+  clean_bun_cache
   clean_spotify_cache
   clean_homebrew
   clean_gradle
   clean_pub_cache
+  clean_dart_server
   clean_discord
   clean_raycast_updates
+  clean_google_updater
+  clean_chrome_models
+  clean_autodesk_webdeploy
+  clean_vscode_electron_caches
+  (( CLEAN_PLAYWRIGHT ))      && clean_playwright_browsers
   (( CLEAN_NODE_MODULES ))    && clean_stale_node_modules
   (( CLEAN_BUILD_ARTIFACTS )) && clean_stale_build_artifacts
   (( CLEAN_IOS_SIMULATORS ))  && clean_ios_simulators
@@ -368,9 +603,9 @@ main() {
     printf '(no net change — Docker VM may need compacting via Docker Desktop → Troubleshoot → Clean/Purge data)\n'
   fi
 
-  if (( ! CLEAN_NODE_MODULES || ! CLEAN_BUILD_ARTIFACTS || ! CLEAN_IOS_SIMULATORS )); then
-    printf '\n%sTip:%s re-run with %s--node-modules%s / %s--build-artifacts%s / %s--ios-simulators%s / %s--all%s for more aggressive cleanup.\n' \
-      "$DIM" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST"
+  if (( ! CLEAN_NODE_MODULES || ! CLEAN_BUILD_ARTIFACTS || ! CLEAN_IOS_SIMULATORS || ! CLEAN_PLAYWRIGHT )); then
+    printf '\n%sTip:%s re-run with %s--node-modules%s / %s--build-artifacts%s / %s--ios-simulators%s / %s--playwright%s / %s--all%s for more aggressive cleanup.\n' \
+      "$DIM" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST" "$YLW" "$RST"
   fi
 }
 
