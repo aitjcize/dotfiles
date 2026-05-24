@@ -28,6 +28,9 @@
 #   - Chrome on-device ML models + component caches (OptGuide*, WasmTtsEngine,
 #     component_crx_cache, GraphiteDawnCache, etc.) — Chrome re-downloads or
 #     rebuilds these on demand. User profile data (Default/*) is left alone.
+#   - Xcode iOS DeviceSupport symbol caches
+#     (~/Library/Developer/Xcode/iOS DeviceSupport) — Xcode re-syncs on next
+#     device connect.
 #   - VSCode-electron IDE caches (Windsurf, Antigravity): Cache, CachedData,
 #     Code Cache, logs — only when the IDE is not running.
 #
@@ -42,6 +45,11 @@
 # With --build-artifacts:
 #   - Also delete .venv/build/target/dist/.next/.turbo dirs under ~/Work
 #     whose project marker file is untouched >90d.
+#
+# With --build-artifacts-force:
+#   - Same as --build-artifacts but ignores the 90-day staleness check —
+#     removes ALL matching dirs under ~/Work regardless of project age.
+#     Use after committing/pushing work; next build will be a cold rebuild.
 #
 # With --ios-simulators:
 #   - Also delete all installed iOS/watchOS/tvOS/visionOS Simulator
@@ -61,16 +69,18 @@ skip()  { printf '%s[-]%s %s\n' "$DIM" "$RST" "$*"; }
 
 CLEAN_NODE_MODULES=0
 CLEAN_BUILD_ARTIFACTS=0
+FORCE_BUILD_ARTIFACTS=0
 CLEAN_IOS_SIMULATORS=0
 CLEAN_PLAYWRIGHT=0
 for arg in "$@"; do
   case "$arg" in
-    --node-modules)    CLEAN_NODE_MODULES=1 ;;
-    --build-artifacts) CLEAN_BUILD_ARTIFACTS=1 ;;
-    --ios-simulators)  CLEAN_IOS_SIMULATORS=1 ;;
-    --playwright)      CLEAN_PLAYWRIGHT=1 ;;
-    --all)             CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1
-                       CLEAN_IOS_SIMULATORS=1; CLEAN_PLAYWRIGHT=1 ;;
+    --node-modules)          CLEAN_NODE_MODULES=1 ;;
+    --build-artifacts)       CLEAN_BUILD_ARTIFACTS=1 ;;
+    --build-artifacts-force) CLEAN_BUILD_ARTIFACTS=1; FORCE_BUILD_ARTIFACTS=1 ;;
+    --ios-simulators)        CLEAN_IOS_SIMULATORS=1 ;;
+    --playwright)            CLEAN_PLAYWRIGHT=1 ;;
+    --all)                   CLEAN_NODE_MODULES=1; CLEAN_BUILD_ARTIFACTS=1
+                             CLEAN_IOS_SIMULATORS=1; CLEAN_PLAYWRIGHT=1 ;;
     -h|--help)
       sed -n '/^# Reclaim/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
       exit 0 ;;
@@ -462,10 +472,15 @@ clean_stale_node_modules() {
 # Delete build/venv dirs under ~/Work for projects whose marker file
 # (package.json, pyproject.toml, requirements.txt, Cargo.toml, CMakeLists.txt,
 #  platformio.ini, pubspec.yaml, go.mod) is untouched >90d.
+# With FORCE_BUILD_ARTIFACTS=1, skip the staleness check and remove all matches.
 clean_stale_build_artifacts() {
   local root="$HOME/Work"
   local stale_days=90
-  info "Stale build/venv dirs under $root (>${stale_days}d)"
+  if (( FORCE_BUILD_ARTIFACTS )); then
+    info "Build/venv dirs under $root (FORCE — ignoring staleness)"
+  else
+    info "Stale build/venv dirs under $root (>${stale_days}d)"
+  fi
   [[ -d "$root" ]] || { skip "no $root"; return; }
 
   local cutoff; cutoff=$(date -v-${stale_days}d +%s)
@@ -495,7 +510,7 @@ clean_stale_build_artifacts() {
       (( mtime > newest )) && newest=$mtime
     done
     (( newest == 0 )) && continue  # no marker — skip, unsafe to judge
-    if (( newest < cutoff )); then
+    if (( FORCE_BUILD_ARTIFACTS )) || (( newest < cutoff )); then
       local kb; kb=$(du -sk "$dir" 2>/dev/null | awk '{print $1}')
       local size; size=$(human_size "$dir")
       rm -rf "$dir" && {
@@ -507,11 +522,28 @@ clean_stale_build_artifacts() {
   done < <(find "$root" -type d \( "${name_filter[@]}" \) -prune -print0 2>/dev/null)
 
   if (( count == 0 )); then
-    skip "none stale"
+    skip "$( (( FORCE_BUILD_ARTIFACTS )) && echo none found || echo none stale )"
   else
     local mb=$((total_k / 1024))
-    ok "Removed $count stale artifact dir(s), ~${mb}M total"
+    ok "Removed $count artifact dir(s), ~${mb}M total"
   fi
+}
+
+clean_xcode_device_support() {
+  local dir="$HOME/Library/Developer/Xcode/iOS DeviceSupport"
+  info "Xcode iOS DeviceSupport symbol caches"
+  [[ -d "$dir" ]] || { skip "not present"; return; }
+  if app_running "Xcode.app/Contents/MacOS/Xcode"; then
+    warn "Xcode is running — quit it and re-run to reclaim"
+    return
+  fi
+  if app_running "Simulator.app/Contents/MacOS/Simulator"; then
+    warn "Simulator is running — quit it and re-run to reclaim"
+    return
+  fi
+  local size; size=$(human_size "$dir")
+  find "$dir" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null \
+    && ok "Xcode iOS DeviceSupport cleared (${size}) — Xcode re-syncs on next device attach"
 }
 
 clean_ios_simulators() {
@@ -588,6 +620,7 @@ main() {
   clean_google_updater
   clean_chrome_models
   clean_autodesk_webdeploy
+  clean_xcode_device_support
   clean_vscode_electron_caches
   (( CLEAN_PLAYWRIGHT ))      && clean_playwright_browsers
   (( CLEAN_NODE_MODULES ))    && clean_stale_node_modules
