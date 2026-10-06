@@ -1,4 +1,5 @@
 local function basic_config()
+  vim.opt.termguicolors = true
   vim.opt.background = 'dark'
   vim.opt.backspace = {'indent', 'eol', 'start'}
   vim.opt.colorcolumn = '81'

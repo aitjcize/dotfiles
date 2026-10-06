@@ -1,10 +1,10 @@
 return {
   {
-    'chriskempson/vim-tomorrow-theme',
-    name = 'vim-tomorrow-theme',
+    'RRethy/base16-nvim',
+    lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'Tomorrow-Night'
-    end
+      vim.cmd.colorscheme 'base16-tomorrow-night'
+    end,
   }
 }

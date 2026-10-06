@@ -16,6 +16,17 @@ local function set_filetype_format()
       vim.opt.textwidth = 80
     end,
   })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = { 'markdown' },
+    callback = function()
+      vim.opt_local.wrap = true
+      vim.opt_local.linebreak = true
+      vim.opt_local.breakindent = true
+      vim.opt_local.conceallevel = 2
+      vim.opt_local.colorcolumn = ''
+    end,
+  })
 end
 
 function M.setup()
