@@ -22,9 +22,6 @@
 #   - Discord cache
 #   - Raycast old update installers
 #   - Google Updater crx_cache (~/Library/.../GoogleUpdater/crx_cache)
-#   - Autodesk Fusion 360 webdeploy installer cache
-#     (~/Library/.../Autodesk/webdeploy/production) — re-downloaded by the
-#     Fusion 360 installer/launcher.
 #   - Chrome on-device ML models + component caches (OptGuide*, WasmTtsEngine,
 #     component_crx_cache, GraphiteDawnCache, etc.) — Chrome re-downloads or
 #     rebuilds these on demand. User profile data (Default/*) is left alone.
@@ -55,6 +52,12 @@
 #   - Also delete all installed iOS/watchOS/tvOS/visionOS Simulator
 #     runtimes (19GB+) and unavailable simulator devices. Re-downloadable
 #     via Xcode → Settings → Platforms.
+#
+# Deliberately NOT cleaned:
+#   - ~/Library/Application Support/Autodesk/webdeploy — despite the name,
+#     production/<hash>/ is where Fusion is actually INSTALLED, not a cache.
+#     ~/Applications/Autodesk Fusion.app is only a stub that `open`s into it,
+#     and nothing re-downloads it, so deleting it uninstalls Fusion.
 #
 # Skips any target whose owning app is currently running.
 
@@ -312,18 +315,6 @@ clean_dart_server() {
   fi
   local size; size=$(human_size "$dir")
   rm -rf "$dir" && ok "Dart Analyzer cache cleared (${size})"
-}
-
-clean_autodesk_webdeploy() {
-  local dir="$HOME/Library/Application Support/Autodesk/webdeploy/production"
-  info "Autodesk Fusion 360 webdeploy cache"
-  [[ -d "$dir" ]] || { skip "not present"; return; }
-  if pgrep -qf 'Autodesk Fusion 360\|Fusion360'; then
-    warn "Fusion 360 is running — quit it and re-run to reclaim"
-    return
-  fi
-  local size; size=$(human_size "$dir")
-  rm -rf "$dir" && ok "Autodesk webdeploy cache cleared (${size}) — re-downloaded on next Fusion launch"
 }
 
 clean_chrome_models() {
@@ -619,7 +610,6 @@ main() {
   clean_raycast_updates
   clean_google_updater
   clean_chrome_models
-  clean_autodesk_webdeploy
   clean_xcode_device_support
   clean_vscode_electron_caches
   (( CLEAN_PLAYWRIGHT ))      && clean_playwright_browsers
